@@ -1,0 +1,14 @@
+colorscheme: light
+social_links:
+  github: https://github.com/bramcordie/
+  twitter: https://twitter.com/bramcordie/
+  linkedin: https://www.linkedin.com/in/bramcordie/
+  mail: mailto:bram@cordie.xyz
+nav:
+  home: /
+  # about: /about/
+  Writing: /archives/
+  # projects: http://github.com/probberechts
+copyright:
+  start_year: 2014
+  end_year:
