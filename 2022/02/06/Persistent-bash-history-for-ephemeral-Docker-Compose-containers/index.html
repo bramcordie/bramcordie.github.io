@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Persistent bash history for ephemeral Docker Compose containers">
+<meta property="og:url" content="https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/">
+<meta property="og:site_name" content="Bram Cordie">
+<meta property="og:description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens a">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-02-06T15:50:57.000Z">
+<meta property="article:modified_time" content="2022-02-06T15:51:38.855Z">
+<meta property="article:author" content="Bram Cordie">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Docker Compose">
+<meta property="article:tag" content="Bash">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Persistent bash history for ephemeral Docker Compose containers</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2015/11/03/Testing-with-Angular-promises-using-Jasmine/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&text=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&is_video=false&description=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Persistent bash history for ephemeral Docker Compose containers&body=Check out this article: https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&name=Persistent bash history for ephemeral Docker Compose containers&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&t=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Persistent bash history for ephemeral Docker Compose containers
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Bram Cordie</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-02-06T15:50:57.000Z" itemprop="datePublished">2022-02-06</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Bash/" rel="tag">Bash</a>, <a class="tag-link-link" href="/tags/Docker/" rel="tag">Docker</a>, <a class="tag-link-link" href="/tags/Docker-Compose/" rel="tag">Docker Compose</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens and then suggest solutions that will hopefully suit your development workflow.</p>
+<p>Bash history is saved to the text file defined in the <code>$HISTFILE</code> environment variable and for most systems defaults to <code>/home/&lt;username&gt;/.bash_history</code>. The history file has a line for every command that was executed since last closing a shell. </p>
+<p><em>Historically macOS uses Bash but since Catalina the default is Z shell. When trying the commands below, make sure you are running a Bash shell.</em></p>
+<p>You can check the history file location with <code>echo $HISTFILE</code>, then print the last 2 commands of the actual history with <code>history 2</code>.<br>This will show (numbers may vary):</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">history</span> 2</span></span><br><span class="line">    1  echo $HISTFILE</span><br><span class="line">    2  history</span><br></pre></td></tr></table></figure>
+<p>If you then try to check the content of the history file,<br>you see the commands you executed in a previous shell but the two lines above are missing or the following error:</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat: can&#x27;t open &#x27;/root/.bash_history&#x27;: No such file or directory</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Remember that Bash only saves the commands for a given shell to the history file when it closes. If there was no previous shell or it didn’t exit properly there will simply be no history file.</p>
+</blockquote>
+<p>Knowing this we can start setting up our Docker Compose containers to persist Bash history when they are recreated.</p>
+<p>I tried using a named volume for storing the history file but this has 2 limitations:</p>
+<ul>
+<li>Named volumes can’t be single files.</li>
+<li>Starting from an empty directory and depending on the container image, permissions can get messed up if you let the container create the history file.</li>
+</ul>
+<p>What I ended up with is a ghost history file that lives on my host system. I suggest you create one per project but this examples creates a generic one in you home directory.</p>
+<p>You could mount your host history file but this can cause unwanted truncation because of different <code>$HISTSIZE</code> and <code>$HISTFILESIZE</code> values between containers and host. Let’s assume your host system is configured to infinitely store your history. If you share the history with a container that only keeps the last 20 commands, it will throw away the history of your host system when the container exits.</p>
+<p>Create the ghost history file on your host system:</p>
+ <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> touch ~/.docker_bash_history</span></span><br></pre></td></tr></table></figure>
+<p>After creating the file you can mount it as a single file volume for one or more services:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">service:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">&quot;bash&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">~/.docker_bash_history:/root/.bash_history</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="comment"># These two variables give you infinite history:</span></span><br><span class="line">      <span class="attr">HISTSIZE:</span> <span class="number">-1</span></span><br><span class="line">      <span class="attr">HISTFILESIZE:</span> <span class="number">-1</span></span><br></pre></td></tr></table></figure>
+<p>Let’s give it a go by running a one-off command on this bash service.</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker-compose run service</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">echo</span> hello world</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">exit</span></span></span><br></pre></td></tr></table></figure>
+<p>This bash image container does not keep running in the background. By using <code>docker-compose run</code> you get the same effect as recreating a long running container with <code>docker-compose up -d</code> and then executing a command in it with <code>docker-compose exec service bash</code>.</p>
+<p>Now create a new container of the same service and check the history. The <em>echo</em> and <em>exit</em> commands above should still show up.</p>
+<figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker-compose run service</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">history</span></span></span><br><span class="line">   1  echo hello world</span><br><span class="line">   2  exit</span><br><span class="line">   3  history</span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">exit</span></span></span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&text=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&is_video=false&description=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Persistent bash history for ephemeral Docker Compose containers&body=Check out this article: https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&title=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&name=Persistent bash history for ephemeral Docker Compose containers&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/&t=Persistent bash history for ephemeral Docker Compose containers"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2014-2022
+    Bram Cordie
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
