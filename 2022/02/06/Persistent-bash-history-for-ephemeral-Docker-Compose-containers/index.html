@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens a">
+    <meta name="description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container bash history. I am going to explain when and why this happens a">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Persistent bash history for ephemeral Docker Compose containers">
 <meta property="og:url" content="https://bram.cordie.xyz/2022/02/06/Persistent-bash-history-for-ephemeral-Docker-Compose-containers/">
 <meta property="og:site_name" content="Bram Cordie">
-<meta property="og:description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens a">
+<meta property="og:description" content="If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container bash history. I am going to explain when and why this happens a">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-02-06T15:50:57.000Z">
-<meta property="article:modified_time" content="2022-02-12T12:48:01.044Z">
+<meta property="article:modified_time" content="2022-02-12T12:48:46.925Z">
 <meta property="article:author" content="Bram Cordie">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="Docker Compose">
@@ -148,24 +148,24 @@
   
 
   <div class="content" itemprop="articleBody">
-    <p>If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container Bash history. I am going to explain when and why this happens and then suggest solutions that will hopefully suit your development workflow.</p>
+    <p>If your local development environment uses Docker Compose, you have probably had to deal with the inconvenience of losing your container <em>bash</em> history. I am going to explain when and why this happens and then suggest solutions that will hopefully suit your development workflow.</p>
 <p>Bash history is saved to the text file defined in the <code>$HISTFILE</code> environment variable and for most systems defaults to <code>/home/&lt;username&gt;/.bash_history</code>. The history file has a line for every command that was executed since last closing a shell. </p>
-<p><em>Historically macOS uses Bash but since Catalina the default is Z shell. When trying the commands below, make sure you are running a Bash shell.</em></p>
+<p><em>Historically macOS uses bash but since Catalina the default is Z shell. When trying the commands below, make sure you are running a bash shell.</em></p>
 <p>You can check the history file location with <code>echo $HISTFILE</code>, then print the last 2 commands of the actual history with <code>history 2</code>.<br>This will show (numbers may vary):</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">history</span> 2</span></span><br><span class="line">    1  echo $HISTFILE</span><br><span class="line">    2  history</span><br></pre></td></tr></table></figure>
-<p>If you then try to check the content of the history file,<br>you see the commands you executed in a previous shell but the two lines above are missing or the following error:</p>
+<p>If you then try to check the content of the history file,<br>you see the commands you executed in a previous shell, but the two lines above are missing, or the following error:</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat: can&#x27;t open &#x27;/root/.bash_history&#x27;: No such file or directory</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>Remember that Bash only saves the commands for a given shell to the history file when it closes. If there was no previous shell or it didn’t exit properly there will simply be no history file.</p>
+<p>Remember that <em>bash</em> only saves the commands for a given shell to the history file when it closes. If there was no previous shell or it didn’t exit properly, there will simply be no history file.</p>
 </blockquote>
-<p>Knowing this we can start setting up our Docker Compose containers to persist Bash history when they are recreated.</p>
-<p>I tried using a named volume for storing the history file but this has 2 limitations:</p>
+<p>Knowing this we can start setting up our Docker Compose containers to persist <em>bash</em> history when they are recreated.</p>
+<p>I tried using a named volume for storing the history file, but this has 2 limitations:</p>
 <ul>
 <li>Named volumes can’t be single files.</li>
 <li>Starting from an empty directory and depending on the container image, permissions can get messed up if you let the container create the history file.</li>
 </ul>
-<p>What I ended up with is a ghost history file that lives on my host system. I suggest you create one per project but this examples creates a generic one in you home directory.</p>
-<p>You could mount your host history file but this can cause unwanted truncation because of different <code>$HISTSIZE</code> and <code>$HISTFILESIZE</code> values between containers and host. Let’s assume your host system is configured to infinitely store your history. If you share the history with a container that only keeps the last 20 commands, it will throw away the history of your host system when the container exits.</p>
+<p>What I ended up with is a ghost history file that lives on my host system. I suggest you create one per project. I will create a generic one in your home directory just as an example.</p>
+<p>You could mount your host history file, but this can cause unwanted truncation because of different <code>$HISTSIZE</code> and <code>$HISTFILESIZE</code> values between containers and host. Let’s assume your host system is configured to infinitely store your history. If you share the history with a container that only keeps the last 20 commands, it will throw away the history of your host system when the container exits.</p>
 <p>Create the ghost history file on your host system:</p>
  <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> touch ~/.docker_bash_history</span></span><br></pre></td></tr></table></figure>
 <p>After creating the file you can mount it as a single file volume for one or more services:</p>
@@ -175,7 +175,7 @@
 <p>This bash image container does not keep running in the background. By using <code>docker-compose run</code> you get the same effect as recreating a long running container with <code>docker-compose up -d</code> and then executing a command in it with <code>docker-compose exec service bash</code>.</p>
 <p>Now create a new container of the same service and check the history. The <em>echo</em> and <em>exit</em> commands above should still show up.</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker-compose run service</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">history</span></span></span><br><span class="line">   1  echo hello world</span><br><span class="line">   2  exit</span><br><span class="line">   3  history</span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">exit</span></span></span><br></pre></td></tr></table></figure>
-<p>I don’t suggest you use the example Docker Compose config above in the <code>docker-compose.yml</code> file of an actual project. It makes assumptions about the presence of the ghost Bash history file that will probably not be true for everyone working on the project. Another practical solution would be to add the additional volume and/or environment variables to your local <code>docker-compose.override.yml</code> file, which should not be committed to version control.</p>
+<p>I don’t suggest you use the example Docker Compose config above in the <code>docker-compose.yml</code> file of an actual project. It makes assumptions about the presence of the ghost <em>bash</em> history file that will probably not be true for everyone working on the project. Another practical solution would be to add the additional volume and/or environment variables to your local <code>docker-compose.override.yml</code> file, which should not be committed to version control.</p>
 
   </div>
 </article>
