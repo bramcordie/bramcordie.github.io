@@ -35,6 +35,8 @@ I tried using a named volume for storing the history file, but this has 2 limita
 - Named volumes can't be single files.
 - Starting from an empty directory and depending on the container image, permissions can get messed up if you let the container create the history file.
 
+![illustration of a ghostly whale](/images/ghost-whale.jpg)
+
 What I ended up with is a ghost history file that lives on my host system. I suggest you create one per project. I will create a generic one in your home directory just as an example.
 
 You could mount your host history file, but this can cause unwanted truncation because of different `$HISTSIZE` and `$HISTFILESIZE` values between containers and host. Let's assume your host system is configured to infinitely store your history. If you share the history with a container that only keeps the last 20 commands, it will throw away the history of your host system when the container exits.
