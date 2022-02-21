@@ -83,3 +83,5 @@ $ exit
 ```
 
 I don't suggest you use the example Docker Compose config above in the `docker-compose.yml` file of an actual project. It makes assumptions about the presence of the ghost _bash_ history file that will probably not be true for everyone working on the project. Another practical solution would be to add the additional volume and/or environment variables to your local `docker-compose.override.yml` file, which should not be committed to version control.
+
+If you have any thoughts or ideas about this blog post that you would like to share, head on over to it's GitHub discussion: [https://github.com/bramcordie/bramcordie.github.io/discussions/1](https://github.com/bramcordie/bramcordie.github.io/discussions/1)
